@@ -8,6 +8,7 @@ def _get_env_var(repository_ctx, name, default):
 def _impl(repository_ctx):
     cuda_path = _get_env_var(repository_ctx, "CUDA_PATH", "/usr/local/cuda")
     cudnn_path = _get_env_var(repository_ctx, "CUDNN_PATH", cuda_path)
+    cudnn_lib_dir = _get_env_var(repository_ctx, "CUDNN_LIB_DIR", "lib64")
 
     print("Using CUDA from %s\n" % cuda_path)
     print("Using cuDNN from %s\n" % cudnn_path)
@@ -81,7 +82,7 @@ cc_library(
 cc_library(
     name = "cudnn",
     srcs = [
-        "cudnn/lib/x86_64-linux-gnu/libcudnn_static.a",
+        "cudnn/%s/libcudnn_static.a",
         "cuda/lib64/libcublas_static.a",
     ] + glob(["cuda/lib64/libcublasLt_static.a"]),
     hdrs = ["cudnn/include/cudnn.h"],
@@ -101,7 +102,7 @@ cc_library(
     name = "cuda_util",
     deps = [":cuda_util_compile"],
 )
-""")
+""" % cudnn_lib_dir)
 
 cuda_configure = repository_rule(
     implementation = _impl,
